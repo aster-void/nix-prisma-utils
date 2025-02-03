@@ -1,7 +1,7 @@
 {
-  nixpkgs,
+  pkgs,
   opensslVersion ? "3.0.x", # can be 3.0.x, 1.1.x or 1.0.x
-  openssl ? nixpkgs.openssl, # the openssl package to use
+  openssl ? pkgs.openssl, # the openssl package to use
   introspection-engine-hash ? null,
   migration-engine-hash ? null,
   prisma-fmt-hash,
@@ -21,8 +21,8 @@ rec {
     let
       hostname = "binaries.prisma.sh";
       channel = "all_commits";
-      binaryTarget = binaryTargetBySystem.${nixpkgs.system};
-      isDarwin = nixpkgs.lib.strings.hasPrefix "darwin" binaryTarget;
+      binaryTarget = binaryTargetBySystem.${pkgs.system};
+      isDarwin = pkgs.lib.strings.hasPrefix "darwin" binaryTarget;
       target = if isDarwin then binaryTarget else "${binaryTarget}-openssl-${opensslVersion}";
       baseUrl = "https://${hostname}/${channel}";
       files =
@@ -89,7 +89,7 @@ rec {
         file:
         file
         // {
-          file = nixpkgs.fetchurl {
+          file = pkgs.fetchurl {
             name = "${baseUrl}/${commit}/${target}/${file.name}.gz";
             url = "${baseUrl}/${commit}/${target}/${file.name}.gz";
             hash = file.hash;
@@ -101,14 +101,14 @@ rec {
         package: builtins.map (file: "export ${file.variable}=${package}/${file.path}") files;
     in
     rec {
-      package = nixpkgs.stdenv.mkDerivation {
+      package = pkgs.stdenv.mkDerivation {
         pname = "prisma-bin";
         version = commit;
         nativeBuildInputs = [
-          nixpkgs.zlib
+          pkgs.zlib
           openssl
-          nixpkgs.stdenv.cc.cc.lib
-        ] ++ nixpkgs.lib.optionals (!isDarwin) [ nixpkgs.autoPatchelfHook ];
+          pkgs.stdenv.cc.cc.lib
+        ] ++ pkgs.lib.optionals (!isDarwin) [ pkgs.autoPatchelfHook ];
         phases = [
           "buildPhase"
           "postFixupHooks"
@@ -116,16 +116,16 @@ rec {
         buildPhase = ''
           mkdir -p $out/bin
           mkdir -p $out/lib
-          ${nixpkgs.lib.concatStringsSep "\n" unzipCommands}
+          ${pkgs.lib.concatStringsSep "\n" unzipCommands}
           chmod +x $out/bin/*
         '';
       };
-      shellHook = nixpkgs.lib.concatStringsSep "\n" (exportCommands package);
+      shellHook = pkgs.lib.concatStringsSep "\n" (exportCommands package);
     };
   # example:
   # a.b123c.d.e12345
   # => e12345
-  afterLastDot = text: nixpkgs.lib.lists.last (nixpkgs.lib.strings.splitString "." text);
+  afterLastDot = text: pkgs.lib.lists.last (pkgs.lib.strings.splitString "." text);
   fromPnpmLock =
     path:
     let
@@ -133,9 +133,9 @@ rec {
       textBefore = keyword: text: builtins.elemAt (builtins.split keyword text) 0;
       parsePnpmLockVersion =
         pnpmLock:
-        if nixpkgs.lib.strings.hasPrefix "lockfileVersion: 5" pnpmLock then
+        if pkgs.lib.strings.hasPrefix "lockfileVersion: 5" pnpmLock then
           "5"
-        else if nixpkgs.lib.strings.hasPrefix "lockfileVersion: '6" pnpmLock then
+        else if pkgs.lib.strings.hasPrefix "lockfileVersion: '6" pnpmLock then
           "6"
         else
           "9";
@@ -145,33 +145,27 @@ rec {
         "5" =
           pnpmLock:
           let
-            version = builtins.elemAt (builtins.split ":" (
-              builtins.elemAt (builtins.split ("@prisma/engines-version/") pnpmLock) 2
-            )) 0;
+            version = builtins.elemAt (builtins.split ":" (builtins.elemAt (builtins.split ("@prisma/engines-version/") pnpmLock) 2)) 0;
           in
-          nixpkgs.lib.lists.last (nixpkgs.lib.strings.splitString "." version);
+          pkgs.lib.lists.last (pkgs.lib.strings.splitString "." version);
 
         # example line:
         # /@prisma/engines-version@5.1.1-1.6a3747c37ff169c90047725a05a6ef02e32ac97e:
         "6" =
           pnpmLock:
           let
-            version = builtins.elemAt (builtins.split ":" (
-              builtins.elemAt (builtins.split ("@prisma/engines-version@") pnpmLock) 2
-            )) 0;
+            version = builtins.elemAt (builtins.split ":" (builtins.elemAt (builtins.split ("@prisma/engines-version@") pnpmLock) 2)) 0;
           in
-          nixpkgs.lib.lists.last (nixpkgs.lib.strings.splitString "." version);
+          pkgs.lib.lists.last (pkgs.lib.strings.splitString "." version);
 
         # exmple line:
         # '@prisma/engines-version@5.15.0-29.12e25d8d06f6ea5a0252864dd9a03b1bb51f3022':
         "9" =
           pnpmLock:
           let
-            version = builtins.elemAt (builtins.split "'" (
-              builtins.elemAt (builtins.split ("@prisma/engines-version@") pnpmLock) 2
-            )) 0;
+            version = builtins.elemAt (builtins.split "'" (builtins.elemAt (builtins.split ("@prisma/engines-version@") pnpmLock) 2)) 0;
           in
-          nixpkgs.lib.lists.last (nixpkgs.lib.strings.splitString "." version);
+          pkgs.lib.lists.last (pkgs.lib.strings.splitString "." version);
       };
       pnpmLock = builtins.readFile path;
       pnpmLockVersion = parsePnpmLockVersion pnpmLock;
@@ -188,7 +182,7 @@ rec {
           packageLock.dependencies.${"@prisma/engines-version"}.version
         else
           packageLock.packages.${"node_modules/@prisma/engines-version"}.version;
-      commit = nixpkgs.lib.lists.last (nixpkgs.lib.strings.splitString "." version);
+      commit = pkgs.lib.lists.last (pkgs.lib.strings.splitString "." version);
     in
     fromCommit commit;
   fromBunLock =

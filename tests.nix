@@ -1,5 +1,14 @@
-{ nixpkgs, prisma-factory }:
-with nixpkgs;
+{
+  system,
+
+  callPackage,
+  writeShellApplication,
+
+  nodejs,
+  pnpm,
+  bun,
+  prisma-factory,
+}:
 let
   hashesBySystem = {
     x86_64-linux = {
@@ -23,9 +32,7 @@ let
   };
   test-npm =
     let
-      prisma =
-        (prisma-factory ({ inherit nixpkgs; } // hashesBySystem.${nixpkgs.system})).fromNpmLock
-          ./npm/package-lock.json;
+      prisma = (callPackage prisma-factory hashesBySystem.${system}).fromNpmLock ./npm/package-lock.json;
     in
     writeShellApplication {
       name = "test-npm";
@@ -33,35 +40,32 @@ let
         echo "testing npm"
         ${prisma.shellHook}
         cd npm
-        ${nixpkgs.nodejs}/bin/npm ci
+        ${nodejs}/bin/npm ci
         ./node_modules/.bin/prisma generate
       '';
     };
   test-pnpm =
     let
-      prisma =
-        (prisma-factory ({ inherit nixpkgs; } // hashesBySystem.${nixpkgs.system})).fromPnpmLock
-          ./pnpm/pnpm-lock.yaml;
+      prisma = (callPackage prisma-factory hashesBySystem.${system}).fromPnpmLock ./pnpm/pnpm-lock.yaml;
     in
     writeShellApplication {
       name = "test-pnpm";
+      runtimeInputs = [ pnpm ];
       text = ''
         echo "testing pnpm"
         ${prisma.shellHook}
         cd pnpm
-        ${nixpkgs.pnpm}/bin/pnpm install
-        ./node_modules/.bin/prisma generate
+        pnpm install
+        pnpm prisma generate
       '';
     };
   test-bun =
     let
-      prisma =
-        (prisma-factory ({ inherit nixpkgs; } // hashesBySystem.${nixpkgs.system})).fromBunLock
-          ./bun/bun.lock;
+      prisma = (callPackage prisma-factory hashesBySystem.${system}).fromBunLock ./bun/bun.lock;
     in
     writeShellApplication {
       name = "test-bun";
-      runtimeInputs = [ nixpkgs.bun ];
+      runtimeInputs = [ bun ];
       text = ''
         echo "testing bun"
         ${prisma.shellHook}
