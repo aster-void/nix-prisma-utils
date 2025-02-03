@@ -24,16 +24,17 @@ With nix-prisma-utils it's the other way around. You can simply install prisma t
 
 ```nix
 {
-  inputs.pkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   inputs.prisma-utils.url = "github:VanCoding/nix-prisma-utils";
 
   outputs =
     { pkgs, prisma-utils, ... }:
     let
-      nixpkgs = import pkgs { system = "x86_64-linux"; };
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
       prisma =
         (prisma-utils.lib.prisma-factory {
-          inherit nixpkgs;
+          inherit pkgs;
           prisma-fmt-hash = "sha256-4zsJv0PW8FkGfiiv/9g0y5xWNjmRWD8Q2l2blSSBY3s="; # just copy these hashes for now, and then change them when nix complains about the mismatch
           query-engine-hash = "sha256-6ILWB6ZmK4ac6SgAtqCkZKHbQANmcqpWO92U8CfkFzw=";
           libquery-engine-hash = "sha256-n9IimBruqpDJStlEbCJ8nsk8L9dDW95ug+gz9DHS1Lc=";
@@ -42,7 +43,7 @@ With nix-prisma-utils it's the other way around. You can simply install prisma t
           ./package-lock.json; # <--- path to our package-lock.json file that contains the version of prisma-engines
     in
     {
-      devShells.x86_64-linux.default = nixpkgs.mkShell { shellHook = prisma.shellHook; };
+      devShells.${system}.default = pkgs.mkShell { shellHook = prisma.shellHook; };
     };
 }
 
@@ -52,16 +53,17 @@ With nix-prisma-utils it's the other way around. You can simply install prisma t
 
 ```nix
 {
-  inputs.pkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   inputs.prisma-utils.url = "github:VanCoding/nix-prisma-utils";
 
   outputs =
-    { pkgs, prisma-utils, ... }:
+    { nixpkgs, prisma-utils, ... }:
     let
-      nixpkgs = import pkgs { system = "x86_64-linux"; };
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
       prisma =
         (prisma-utils.lib.prisma-factory {
-          inherit nixpkgs;
+          inherit pkgs;
           prisma-fmt-hash = "sha256-4zsJv0PW8FkGfiiv/9g0y5xWNjmRWD8Q2l2blSSBY3s="; # just copy these hashes for now, and then change them when nix complains about the mismatch
           query-engine-hash = "sha256-6ILWB6ZmK4ac6SgAtqCkZKHbQANmcqpWO92U8CfkFzw=";
           libquery-engine-hash = "sha256-n9IimBruqpDJStlEbCJ8nsk8L9dDW95ug+gz9DHS1Lc=";
@@ -70,7 +72,7 @@ With nix-prisma-utils it's the other way around. You can simply install prisma t
           ./pnpm-lock.yaml; # <--- path to our pnpm-lock.yaml file that contains the version of prisma-engines
     in
     {
-      devShells.x86_64-linux.default = nixpkgs.mkShell { shellHook = prisma.shellHook; };
+      devShells.${system}.default = pkgs.mkShell { shellHook = prisma.shellHook; };
     };
 }
 
@@ -80,16 +82,17 @@ With nix-prisma-utils it's the other way around. You can simply install prisma t
 
 ```nix
 {
-  inputs.pkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   inputs.prisma-utils.url = "github:VanCoding/nix-prisma-utils";
 
   outputs =
-    { pkgs, prisma-utils, ... }:
+    { nixpkgs, prisma-utils, ... }:
     let
-      nixpkgs = import pkgs { system = "x86_64-linux"; };
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
       prisma =
         (prisma-utils.lib.prisma-factory {
-          inherit nixpkgs;
+          inherit pkgs;
           prisma-fmt-hash = "sha256-4zsJv0PW8FkGfiiv/9g0y5xWNjmRWD8Q2l2blSSBY3s="; # just copy these hashes for now, and then change them when nix complains about the mismatch
           query-engine-hash = "sha256-6ILWB6ZmK4ac6SgAtqCkZKHbQANmcqpWO92U8CfkFzw=";
           libquery-engine-hash = "sha256-n9IimBruqpDJStlEbCJ8nsk8L9dDW95ug+gz9DHS1Lc=";
@@ -99,7 +102,7 @@ With nix-prisma-utils it's the other way around. You can simply install prisma t
           # NOTE: does not work with bun.lockb!
     in
     {
-      devShells.x86_64-linux.default = nixpkgs.mkShell { shellHook = prisma.shellHook; };
+      devShells.${system}.default = pkgs.mkShell { shellHook = prisma.shellHook; };
     };
 }
 ```
