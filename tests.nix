@@ -34,6 +34,7 @@ let
       x86_64-darwin = {
         prisma-fmt-hash = "sha256-Z0AIuCRW0GEd6QRiyYdVVS1Zb6d1aRH+jUE0JNXFgiQ=";
         libquery-engine-hash = "sha256-cerpi9y9w6Fn1meXuj2VDRdIQz/MZvrQ7LZKa0Z70yM=";
+        query-engine-hash = "sha256-TjJp72T9nmJcIrMLUIpnapzNlRyVpGp/jGaSuJ0nUDI=";
       };
 
       aarch64-darwin = {
