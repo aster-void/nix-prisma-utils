@@ -32,8 +32,10 @@ let
         schema-engine-hash = "sha256-5bp8iiq6kc9c37G8dNKVHKWJHvaxFaetR4DOR/0/eWs=";
       };
       x86_64-darwin = {
+        prisma-fmt-hash = "sha256-Z0AIuCRW0GEd6QRiyYdVVS1Zb6d1aRH+jUE0JNXFgiQ=";
         libquery-engine-hash = "sha256-cerpi9y9w6Fn1meXuj2VDRdIQz/MZvrQ7LZKa0Z70yM=";
       };
+
       aarch64-darwin = {
         prisma-fmt-hash = "sha256-UPig7U2zXOccalIUE0j07xJdmqAUJ7cpXFTo+2Gbsc8=";
         query-engine-hash = "sha256-ihP1BEAvXQ+5XXHEXCYAVTnuETpfxmdtsIGRTljKtS0=";
