@@ -11,6 +11,12 @@
 }:
 let
   hashesBySystem = {
+    blank = {
+      prisma-fmt-hash = "";
+      query-engine-hash = "";
+      libquery-engine-hash = "";
+      schema-engine-hash = "";
+    };
     x86_64-linux = {
       prisma-fmt-hash = "sha256-4zsJv0PW8FkGfiiv/9g0y5xWNjmRWD8Q2l2blSSBY3s=";
       query-engine-hash = "sha256-6ILWB6ZmK4ac6SgAtqCkZKHbQANmcqpWO92U8CfkFzw=";
@@ -30,11 +36,12 @@ let
       schema-engine-hash = "sha256-+O4IelHbZt4X+6UWol8TpL+BBDTS5JT+0hQR7ELVmZc=";
     };
   };
+  build = prisma-factory (
+    { inherit nixpkgs; } // hashesBySystem.${nixpkgs.system} or hashesBySystem.blank
+  );
   test-npm =
     let
-      prisma =
-        (prisma-factory ({ inherit nixpkgs; } // hashesBySystem.${nixpkgs.system})).fromNpmLock
-          ./npm/package-lock.json;
+      prisma = build.fromNpmLock ./npm/package-lock.json;
     in
     writeShellApplication {
       name = "test-npm";
@@ -49,9 +56,7 @@ let
     };
   test-pnpm =
     let
-      prisma =
-        (prisma-factory ({ inherit nixpkgs; } // hashesBySystem.${nixpkgs.system})).fromPnpmLock
-          ./pnpm/pnpm-lock.yaml;
+      prisma = build.fromPnpmLock ./pnpm/pnpm-lock.yaml;
     in
     writeShellApplication {
       name = "test-pnpm";
@@ -66,9 +71,7 @@ let
     };
   test-bun =
     let
-      prisma =
-        (prisma-factory ({ inherit nixpkgs; } // hashesBySystem.${nixpkgs.system})).fromBunLock
-          ./bun/bun.lock;
+      prisma = build.fromBunLock ./bun/bun.lock;
     in
     writeShellApplication {
       name = "test-bun";
@@ -83,9 +86,7 @@ let
     };
   test-yarn-v1 =
     let
-      prisma =
-        (prisma-factory ({ inherit nixpkgs; } // hashesBySystem.${nixpkgs.system})).fromYarnLock
-          ./yarn-v1/yarn.lock;
+      prisma = build.fromYarnLock ./yarn-v1/yarn.lock;
     in
     writeShellApplication {
       name = "test-yarn-v1";
@@ -100,9 +101,7 @@ let
     };
   test-yarn-berry =
     let
-      prisma =
-        (prisma-factory ({ inherit nixpkgs; } // hashesBySystem.${nixpkgs.system})).fromYarnLock
-          ./yarn-berry/yarn.lock;
+      prisma = build.fromYarnLock ./yarn-berry/yarn.lock;
     in
     writeShellApplication {
       name = "test-yarn-berry";
